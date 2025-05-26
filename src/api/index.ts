@@ -14,6 +14,12 @@ export const fetchUserData = () => {
     });
 };
 
+export const fetchTaskData = () => {
+    return request({
+        url: './mock/task.json',
+        method: 'get'
+    });
+};
 export const fetchRoleData = () => {
     return request({
         url: './mock/role.json',

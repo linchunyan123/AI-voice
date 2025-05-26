@@ -27,10 +27,10 @@ const routes: RouteRecordRaw[] = [
                 path: '/system-user',
                 name: 'system-user',
                 meta: {
-                    title: '用户管理',
+                    title: '任务管理',
                     permiss: '11',
                 },
-                component: () => import(/* webpackChunkName: "system-user" */ '../views/system/user.vue'),
+                component: () => import(/* webpackChunkName: "system-user" */ '../views/taskManagement.vue'),
             },
             {
                 path: '/system-role',

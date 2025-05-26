@@ -36,7 +36,7 @@ const query = reactive({
     name: '',
 });
 const searchOpt = ref<FormOptionList[]>([
-    { type: 'input', label: '用户名：', prop: 'name' }
+    { type: 'input', label: '用户名：', prop: 'name',placeholder:"输入任务名称" }
 ])
 const handleSearch = () => {
     changePage(1);
