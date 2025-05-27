@@ -68,18 +68,18 @@
                 <el-button
                   type="warning"
                   size="small"
-                  :icon="View"
-                  @click="viewFunc(row)"
+                  :icon="Pointer"
+                  @click="router.push({ name: 'task-operation' });"
                 >
-                  查看
+                  任务操作
                 </el-button>
                 <el-button
                   type="primary"
                   size="small"
-                  :icon="Edit"
+                  :icon="View"
                   @click="editFunc(row)"
                 >
-                  编辑
+                  任务详情
                 </el-button>
                 <el-button
                   type="danger"
@@ -115,8 +115,10 @@
 
 <script setup lang="ts">
 import { toRefs, PropType, ref } from "vue";
-import { Delete, Edit, View, Refresh } from "@element-plus/icons-vue";
+import { useRouter } from 'vue-router';
+import { Delete, Edit, View, Refresh,Pointer } from "@element-plus/icons-vue";
 import { ElMessageBox } from "element-plus";
+const router = useRouter();
 
 let props = defineProps({
   // 表格相关

@@ -11,7 +11,7 @@ export const menuData: Menus[] = [
     id: '1',
     title: '后处理任务',
     // index: '1',
-    index: '/system-user',
+    index: '/task-management',
     icon: 'AlarmClock',
     // children: [
     //     {
@@ -37,7 +37,7 @@ export const menuData: Menus[] = [
   {
     id: '2',
     title: '实时处理任务',
-    index: '/theme',
+    index: '/system-role',
     icon: 'PieChart',
   },
   //   {

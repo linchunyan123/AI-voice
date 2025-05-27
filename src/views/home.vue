@@ -3,7 +3,7 @@
         <v-header />
         <v-sidebar />
         <div class="content-box" :class="{ 'content-collapse': sidebar.collapse }">
-            <v-tabs></v-tabs>
+            <v-tabs  v-if="showTabs"></v-tabs>
             <div class="content">
                 <router-view v-slot="{ Component }">
                     <transition name="move" mode="out-in">
@@ -22,7 +22,14 @@ import { useTabsStore } from '@/store/tabs';
 import vHeader from '@/components/header.vue';
 import vSidebar from '@/components/sidebar.vue';
 import vTabs from '@/components/tabs.vue';
+import { ref } from 'vue';
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
+
+// 当路径不是 /task-operation 时显示 tabs
+const showTabs = computed(() => route.path !== '/task-operation')
 const sidebar = useSidebarStore();
 const tabs = useTabsStore();
 </script>

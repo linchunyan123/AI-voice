@@ -53,15 +53,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useSidebarStore } from '../store/sidebar';
-import { useRoute } from 'vue-router';
+import { ref,computed ,watch} from 'vue';
+import { useSidebarStore } from '../store/sidebar';;
+import { useRoute, useRouter } from 'vue-router';
 import { menuData } from '@/components/menu';
 
 const route = useRoute();
-const onRoutes = computed(() => {
-    return route.path;
-});
+const router = useRouter();
+
+const onRoutes = ref(route.path);
+// const onRoutes = computed(() => {
+//     return route.path;
+// });
+watch(() => route.path, (newPath) => {
+    onRoutes.value = newPath;
+});;
 
 const sidebar = useSidebarStore();
 </script>

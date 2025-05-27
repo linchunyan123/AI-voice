@@ -180,10 +180,11 @@
 </template>
 
 <script setup lang="ts" name="taskManagement">
-import { ref, reactive } from "vue";
+import { ref, reactive,onMounted } from "vue";
 import TableSearch from "@/components/task-search.vue";
 import TableCustom from "@/components/task-custom.vue";
 import { fetchTaskData } from '@/api';
+let returnData = reactive([])
 const input = ref("");
 const username: string | null = localStorage.getItem("vuems_name");
 // 查询相关
@@ -218,7 +219,7 @@ let columns = ref([
   { prop: "status", label: "任务状态" },
   { prop: "time", label: "创建时间" },
   { prop: "man", label: "创建人" },
-  { prop: "operator", label: "操作", width: 250 },
+  { prop: "operator", label: "操作", width: 400 },
 ]);
 const page = reactive({
   index: 1,
@@ -228,10 +229,11 @@ const page = reactive({
 const tableData = ref<User[]>([]);
 const getData = async () => {
   const res = await fetchTaskData();
-  tableData.value = res.data.list;
+  returnData = res.data.list;
+  tableData.value = returnData.slice((page.index - 1) * page.size, page.index * page.size);
 //   page.total = res.data.pageTotal;
-  page.total = 2;
-  page.size = 1;
+  // page.total = 2;
+  // page.size = 1;
 };
 getData();
 
@@ -241,7 +243,7 @@ const changePage = (val: number) => {
 };
 const changeSize = (val: number) => {
   page.size = val;
-//   getData();
+  getData();
 };
 
 // 新增/编辑弹窗相关
@@ -319,6 +321,9 @@ const handleView = (row: User) => {
 const handleDelete = (row: User) => {
   ElMessage.success("删除成功");
 };
+onMounted(() => {
+  getData()
+})
 </script>
 
 <style scoped lang="scss">

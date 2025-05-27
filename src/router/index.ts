@@ -21,16 +21,72 @@ const routes: RouteRecordRaw[] = [
                     title: '系统首页',
                     noAuth: true,
                 },
-                component: () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard.vue'),
+                component: () => import(/* 系统首页 */ '../views/dashboard.vue'),
             },
             {
-                path: '/system-user',
-                name: 'system-user',
+                path: '/task-management',
+                name: 'task-management',
                 meta: {
                     title: '任务管理',
                     permiss: '11',
                 },
-                component: () => import(/* webpackChunkName: "system-user" */ '../views/taskManagement.vue'),
+                component: () => import(/* 后处理任务页面 */ '../views/taskManagement.vue'),
+            },
+            {
+                path: '/task-operation',
+                name: 'task-operation',
+                meta: {
+                    title: '任务操作',
+                    permiss: '11',
+                },
+                component: () => import(/* 任务操作页面 */ '../views/taskOperation.vue'),
+                children: [
+                    {
+                        path: '/task-batch', 
+                        name: 'task-batch',
+                        meta: {
+                            title: '任务批次',
+                            permiss: '11',
+                        },
+                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
+                    },
+                    {
+                        path: '/file-detection', 
+                        name: 'task-batch',
+                        meta: {
+                            title: '文件检测',
+                            permiss: '11',
+                        },
+                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
+                    },
+                    {
+                        path: '/task-batch', 
+                        name: 'task-batch',
+                        meta: {
+                            title: '文件转写',
+                            permiss: '11',
+                        },
+                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
+                    },
+                    {
+                        path: '/task-batch', 
+                        name: 'task-batch',
+                        meta: {
+                            title: '任务详情',
+                            permiss: '11',
+                        },
+                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
+                    },
+                ],
+            },
+            {
+                path: '/user-create',
+                name: 'user-create',
+                meta: {
+                    title: '创建用户',
+                    permiss: '7',
+                },
+                component: () => import(/* 创建用户页面" */ '../views/userCreate.vue'),
             },
             {
                 path: '/system-role',
