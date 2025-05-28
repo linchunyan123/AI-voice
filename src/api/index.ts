@@ -7,6 +7,7 @@ export const fetchData = () => {
     });
 };
 
+
 export const fetchUserData = () => {
     return request({
         url: './mock/user.json',
@@ -17,6 +18,12 @@ export const fetchUserData = () => {
 export const fetchTaskData = () => {
     return request({
         url: './mock/task.json',
+        method: 'get'
+    });
+};
+export const fetchFileData = () => {
+    return request({
+        url: './mock/file.json',
         method: 'get'
     });
 };
