@@ -61,6 +61,7 @@ import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
 import service from "@/utils/request";
+import { loginFn } from "@/api/user";
 interface LoginInfo {
   username: string;
   password: string;
@@ -88,13 +89,12 @@ const rules: FormRules = {
 };
 const permiss = usePermissStore();
 const login = ref<FormInstance>();
-const submitForm = (formEl: FormInstance | undefined) => {
+const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  service
-    .post("/user/login", param)
-    .then((res) => {
+  const res = await loginFn(param.username,param.password);
+     if (res.data.code === 200) {
       console.log("用户信息：", res);
-      localStorage.setItem("access_token", res.data.data.access_token);
+      localStorage.setItem("token", res.data.data.access_token);
       localStorage.setItem("role", res.data.userinfo.role);
       ElMessage.success("登录成功");
       localStorage.setItem("vuems_name", param.username);
@@ -102,16 +102,9 @@ const submitForm = (formEl: FormInstance | undefined) => {
         permiss.defaultList[param.username == "admin" ? "admin" : "user"];
       permiss.handleSet(keys);
       router.push("/");
-      if (checked.value) {
-        localStorage.setItem("login-param", JSON.stringify(param));
-      } else {
-        localStorage.removeItem("login-param");
-      }
-    })
-    .catch((err) => {
-      console.error("请求失败：", err);
+    } else {
       ElMessage.error("登录失败");
-    });
+    }
 };
 
 const tabs = useTabsStore();

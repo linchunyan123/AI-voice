@@ -54,7 +54,7 @@
                                 <el-dropdown-item>官方文档</el-dropdown-item>
                             </a> -->
                             <el-dropdown-item command="user">创建用户</el-dropdown-item>
-                            <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
+                            <el-dropdown-item divided command="loginout" @click="loginout">退出登录</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -67,6 +67,8 @@ import { onMounted } from 'vue';
 import { useSidebarStore } from '../store/sidebar';
 import { useRouter } from 'vue-router';
 import imgurl from '../assets/img/img.jpg';
+import {loginoutFn} from '../api/user';
+import { ElMessage } from "element-plus";
 
 const username: string | null = localStorage.getItem('vuems_name');
 const message: number = 2;
@@ -101,6 +103,14 @@ const setFullScreen = () => {
         document.body.requestFullscreen.call(document.body);
     }
 };
+// 退出登录
+const loginout = async() => {
+    await loginoutFn()
+    ElMessage.success("退出成功");
+    localStorage.removeItem('vuems_name');
+    localStorage.removeItem('token');
+    router.push('/login');
+}
 </script>
 <style scoped>
 .header {

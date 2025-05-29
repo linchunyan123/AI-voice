@@ -40,44 +40,15 @@ const routes: RouteRecordRaw[] = [
                     permiss: '11',
                 },
                 component: () => import(/* 任务操作页面 */ '../views/taskOperation.vue'),
-                children: [
-                    {
-                        path: '/task-batch', 
-                        name: 'task-batch',
-                        meta: {
-                            title: '任务批次',
-                            permiss: '11',
-                        },
-                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
-                    },
-                    {
-                        path: '/file-detection', 
-                        name: 'task-batch',
-                        meta: {
-                            title: '文件检测',
-                            permiss: '11',
-                        },
-                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
-                    },
-                    {
-                        path: '/task-batch', 
-                        name: 'task-batch',
-                        meta: {
-                            title: '文件转写',
-                            permiss: '11',
-                        },
-                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
-                    },
-                    {
-                        path: '/task-batch', 
-                        name: 'task-batch',
-                        meta: {
-                            title: '任务详情',
-                            permiss: '11',
-                        },
-                        component: () => import('../components/task-batch.vue'), // 加载子页面组件
-                    },
-                ],
+            },
+            {
+                path: '/file-view',
+                name: 'file-view',
+                meta: {
+                    title: '文件查看',
+                    permiss: '11',
+                },
+                component: () => import(/* 文件查看页面 */ '../views/fileView.vue'),
             },
             {
                 path: '/user-create',
@@ -142,7 +113,6 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "echarts" */ '../views/chart/echarts.vue'),
             },
-
             {
                 path: '/icon',
                 name: 'icon',

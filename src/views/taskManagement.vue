@@ -119,12 +119,14 @@
       <div class="task-middle-title">创建任务</div>
       <div class="task-middle-content">
         <el-input
-          v-model="input"
+          v-model="inputval"
           style="width: 240px; margin-right: 15px"
           placeholder="输入任务名称"
           clearable
         />
-        <el-button type="primary">创建任务</el-button>
+        <el-button type="primary" @click="createTask1(inputval)"
+          >创建任务</el-button
+        >
       </div>
     </div>
     <div class="task-bottom">
@@ -142,8 +144,8 @@
           :viewFunc="handleView"
           :delFunc="handleDelete"
           :editFunc="handleEdit"
-          :pageSize="page.size" 
-          :currentPage="page.index" 
+          :pageSize="page.size"
+          :currentPage="page.index"
           :changeSize="changeSize"
           :changePage="changePage"
         >
@@ -180,12 +182,17 @@
 </template>
 
 <script setup lang="ts" name="taskManagement">
-import { ref, reactive,onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import TableSearch from "@/components/task-search.vue";
 import TableCustom from "@/components/task-custom.vue";
-import { fetchTaskData } from '@/api';
-let returnData = reactive([])
-const input = ref("");
+import { ElMessage } from "element-plus";
+import { fetchTaskData } from "@/api";
+import { createTask } from "@/api/task";
+import service from "@/utils/request";
+import { useRouter } from "vue-router";
+const router = useRouter();
+let returnData = reactive([]);
+const inputval = ref("");
 const username: string | null = localStorage.getItem("vuems_name");
 // 查询相关
 const query = reactive({
@@ -230,8 +237,11 @@ const tableData = ref<User[]>([]);
 const getData = async () => {
   const res = await fetchTaskData();
   returnData = res.data.list;
-  tableData.value = returnData.slice((page.index - 1) * page.size, page.index * page.size);
-//   page.total = res.data.pageTotal;
+  tableData.value = returnData.slice(
+    (page.index - 1) * page.size,
+    page.index * page.size
+  );
+  //   page.total = res.data.pageTotal;
   // page.total = 2;
   // page.size = 1;
 };
@@ -322,8 +332,29 @@ const handleDelete = (row: User) => {
   ElMessage.success("删除成功");
 };
 onMounted(() => {
-  getData()
-})
+  getData();
+});
+// 创建任务
+const createTask1 = async (name) => {
+  console.log(123456, name);
+  if (name !== "") {
+    const res = await createTask(name);
+    if (res.data.code === 200) {
+      ElMessage.success("创建成功");
+      inputval.value = "";
+      // location.reload()
+      // getData();
+    } else if (res.data.code === 403) {
+      ElMessage.error("权限不足");
+    } else if (res.data.code === 401) {
+      router.push("/login");
+    } else {
+      ElMessage.error("创建失败");
+    }
+  } else {
+    ElMessage.error("请输入任务名称！");
+  }
+};
 </script>
 
 <style scoped lang="scss">

@@ -6,7 +6,7 @@
       class="demo-tabs"
       @tab-click="handleClick"
     >
-      <el-tab-pane label="任务批次" name="first">
+      <el-tab-pane label="任务操作" name="first">
         <el-tabs
           v-model="activeName1"
           class="demo-tabs1"
@@ -30,27 +30,32 @@
         </el-tabs>
         <div class="fileBox">
           <div class="fileList">
-            <!-- <ul>
-              <li v-for="file in fileList" :key="file.name">{{ file.name }}</li>
-            </ul> -->
+            <ul>
+              <li
+                v-for="(file,index) in uploadFileList"
+                :key="file.name"
+                @mouseenter="file.isHover = true"
+                @mouseleave="file.isHover = false"
+              >
+                <el-icon class="icon1" color="#909399"><Document /></el-icon>
+                <div>{{ file.name }}</div>
+                <el-icon class="icon2" v-if="!file.isHover" color="#67c23a"
+                  ><SuccessFilled
+                /></el-icon>
+                <el-icon class="icon3" v-if="file.isHover" color="#f56c6c" @click="deleteFile(index)"
+                  ><CircleClose
+                /></el-icon>
+              </li>
+            </ul>
           </div>
           <div class="fileAction">
             <!-- <el-button class="btn" size="large" type="primary" @click="addFile"><el-icon><CirclePlus /></el-icon>添加文件</el-button> -->
-            <el-upload
-              v-model:file-list="fileList"
-              class="upload-demo"
-              action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-              multiple
-              :on-preview="handlePreview"
-              :on-remove="handleRemove"
-              :before-remove="beforeRemove"
-              :limit="3"
-              :on-exceed="handleExceed"
-            >
+            <div class="uploadBtn">
+              <input type="file" @change="handleFileChange" />
               <el-button type="primary" size="large"
                 ><el-icon><CirclePlus /></el-icon>添加文件</el-button
               >
-            </el-upload>
+            </div>
             <el-button
               class="btn"
               size="large"
@@ -162,7 +167,7 @@
                 <el-button type="success" @click="dialogVisible = true"
                   ><el-icon><View /></el-icon>转写预览</el-button
                 >
-                <el-dropdown style="margin:0 10px">
+                <el-dropdown style="margin: 0 10px">
                   <el-button color="#626aef"
                     ><el-icon><Download /></el-icon> 转写下载<el-icon
                       class="el-icon--right"
@@ -178,10 +183,10 @@
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <el-button type="primary"
+                <el-button type="primary" @click="toFile(1)"
                   ><el-icon><Search /></el-icon>文件查看</el-button
                 >
-                <el-button type="warning"
+                <el-button type="warning" @click="toFile(2)"
                   ><el-icon><MuteNotification /></el-icon>文件降噪</el-button
                 >
               </template>
@@ -235,10 +240,30 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, nextTick } from "vue";
 import type { TabsPaneContext } from "element-plus";
 import { ArrowDown } from "@element-plus/icons-vue";
 import TableSearch from "@/components/operation-search.vue";
+import { useRouter } from "vue-router";
+const isHover = ref(false);
+const selectedFile = ref(null);
+const uploadFileList = reactive([]);
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = file;
+  }
+  console.log(selectedFile.value);
+  uploadFileList.push({name:selectedFile.value.name,isHover:false});
+  // console.log(123,uploadFileList);
+  
+};
+
+const deleteFile = (index) => {
+   uploadFileList.splice(index, 1)
+};
+
+const router = useRouter();
 
 const dialogVisible = ref(false);
 
@@ -324,27 +349,42 @@ const getStatus3 = computed(() => {
   if (percentage3.value === 100) return "success";
   return ""; // 默认值
 });
-// const activeName = ref("first");
-const activeName = ref("fourth");
+const activeName = ref("first");
+// const activeName = ref("fourth");
 const activeName1 = ref("first1");
 const activeName2 = ref("first2");
 const activeName3 = ref("first3");
 const activeName4 = ref("first4");
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  // console.log(tab, event);
+  nextTick(() => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    // console.log(tab, event);
+  });
 };
 const handleClick1 = (tab: TabsPaneContext, event: Event) => {
-  // console.log(tab, event);
+  nextTick(() => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    // console.log(tab, event);
+  });
 };
 const handleClick2 = (tab: TabsPaneContext, event: Event) => {
-  // console.log(tab, event);
+  nextTick(() => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    // console.log(tab, event);
+  });
 };
 const handleClick3 = (tab: TabsPaneContext, event: Event) => {
-  // console.log(tab, event);
+  nextTick(() => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    // console.log(tab, event);
+  });
 };
 const handleClick4 = (tab: TabsPaneContext, event: Event) => {
-  // console.log(tab, event);
+  nextTick(() => {
+    (document.activeElement as HTMLElement | null)?.blur?.();
+    // console.log(tab, event);
+  });
 };
 const buttons = [{ type: "primary", text: "⬅ 返回任务管理" }] as const;
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -392,6 +432,11 @@ const detection = () => {
 const transcription = () => {
   // console.log("启动转写");
   activeName.value = "third";
+};
+// 去文件查看页面
+const toFile = (index) => {
+  // console.log(123,index);
+  router.push({ path: "file-view", query: { index } });
 };
 </script>
 
@@ -470,11 +515,24 @@ const transcription = () => {
     border: 1px solid #dcdfe6;
     ul {
       list-style: none;
-      width: 90%;
+      width: 96%;
       margin: 0 auto;
       margin-top: 10px;
       li {
         margin: 10px 0;
+        display: flex;
+        align-items: center;
+        position: relative;
+        color: #909399;
+        cursor: pointer;
+        .icon1 {
+          margin-right: 5px;
+        }
+        .icon2,
+        .icon3 {
+          position: absolute;
+          right: 0;
+        }
       }
     }
   }
@@ -483,6 +541,20 @@ const transcription = () => {
     .btn {
       display: block;
       margin: 20px auto;
+    }
+    .uploadBtn {
+      position: relative;
+      cursor: pointer;
+      input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: red;
+        opacity: 0;
+        cursor: pointer;
+      }
     }
   }
 }

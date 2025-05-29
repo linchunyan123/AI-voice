@@ -33,7 +33,7 @@
             class="login-btn"
             type="primary"
             size="large"
-            @click="submitForm(login)"
+            @click="submitForm(param.username, param.password)"
             >创建</el-button
           >
         </el-form>
@@ -50,6 +50,7 @@ import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
 import service from "@/utils/request";
+import { createuserFn } from "@/api/user";
 interface LoginInfo {
   username: string;
   password: string;
@@ -76,20 +77,24 @@ const rules: FormRules = {
 };
 const permiss = usePermissStore();
 const login = ref<FormInstance>();
-const submitForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  service
-    .post("/user/register", param)
-    .then((res) => {
-      console.log("用户信息：", res);
-       ElMessage.success("创建成功");
-       param.username = "";
-       param.password = "";
-    })
-    .catch((err) => {
-      console.error("请求失败：", err);
-       ElMessage.error("创建失败");
-    });
+const submitForm = async (username, password) => {
+  console.log({username}, {password});
+  
+  if (!username || !password) {
+    ElMessage.error("请填完整信息！");
+    return
+  } else {
+    const res = await createuserFn(username, password);
+    console.log(999,res);
+    
+    if (res.data.code === 200) {
+      ElMessage.success("创建成功");
+      param.username = "";
+      param.password = "";
+    } else {
+      ElMessage.error("创建失败");
+    }
+  }
 };
 </script>
 
