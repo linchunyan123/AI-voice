@@ -69,7 +69,7 @@
                   type="warning"
                   size="small"
                   :icon="Pointer"
-                  @click="router.push({ name: 'task-operation' });"
+                  @click="router.push({ path: 'task-operation' ,query: { index:1 } })"
                 >
                   任务操作
                 </el-button>
@@ -77,7 +77,7 @@
                   type="primary"
                   size="small"
                   :icon="View"
-                  @click="editFunc(row)"
+                  @click="router.push({ path: 'task-operation',query: { index:4,id: row.id }  })"
                 >
                   任务详情
                 </el-button>
@@ -102,11 +102,11 @@
       </template>
     </el-table>
     <el-pagination
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
-      :page-sizes="[1, 2, 3, 4]"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      :page-sizes="[5, 10, 15, 20]"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="2"
+      :total="total"
       @size-change="changeSize"
       @current-change="changePage"
     />
@@ -115,8 +115,8 @@
 
 <script setup lang="ts">
 import { toRefs, PropType, ref } from "vue";
-import { useRouter } from 'vue-router';
-import { Delete, Edit, View, Refresh,Pointer } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+import { Delete, Edit, View, Refresh, Pointer } from "@element-plus/icons-vue";
 import { ElMessageBox } from "element-plus";
 const router = useRouter();
 
@@ -185,9 +185,9 @@ let props = defineProps({
     default: () => {},
   },
   changeSize: {
-      type: Function,
-      default: () => { }
-  }
+    type: Function,
+    default: () => {},
+  },
 });
 
 let {

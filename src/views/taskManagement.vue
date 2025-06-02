@@ -187,8 +187,9 @@ import TableSearch from "@/components/task-search.vue";
 import TableCustom from "@/components/task-custom.vue";
 import { ElMessage } from "element-plus";
 import { fetchTaskData } from "@/api";
-import { createTask } from "@/api/task";
+import { createTask, getTaskList } from "@/api/task";
 import service from "@/utils/request";
+import { Task } from "@/types/task";
 import { useRouter } from "vue-router";
 const router = useRouter();
 let returnData = reactive([]);
@@ -221,31 +222,55 @@ const handleSearch = () => {
 };
 // 表格相关
 let columns = ref([
-  { type: "index", label: "编号", width: 55, align: "center" },
+  { prop: "number", label: "编号", align: "center" },
   { prop: "name", label: "任务名称" },
   { prop: "status", label: "任务状态" },
-  { prop: "time", label: "创建时间" },
+  { prop: "create_time", label: "创建时间" },
   { prop: "man", label: "创建人" },
   { prop: "operator", label: "操作", width: 400 },
 ]);
 const page = reactive({
   index: 1,
-  size: 1,
+  size: 5,
   total: 0,
 });
-const tableData = ref<User[]>([]);
+const tableData = ref<Task[]>([]);
 const getData = async () => {
-  const res = await fetchTaskData();
-  returnData = res.data.list;
-  tableData.value = returnData.slice(
-    (page.index - 1) * page.size,
-    page.index * page.size
-  );
-  //   page.total = res.data.pageTotal;
-  // page.total = 2;
-  // page.size = 1;
+  const res = await getTaskList(page.index, page.size);
+  if (res.data.code === 200) {
+    console.log(119, res);
+    page.total = res.data.data.total;
+    console.log(139, page.total);
+
+    returnData = res.data.data.list;
+    const username = localStorage.getItem("vuems_name");
+    const updatedData = returnData.map((item) => ({
+      ...item,
+      man: username,
+    }));
+    const statusMap: { [key: number]: string } = {
+      1: "空任务",
+      2: "已检测",
+      3: "已转写",
+      4: "处理中",
+      5: "暂停中",
+    };
+
+    const updatedTwoData = updatedData.map((item) => ({
+      ...item,
+      man: 999,
+      status: statusMap[item.status] || item.status, // 如果status不在映射中，保留原值
+    }));
+
+    tableData.value = updatedTwoData;
+    // tableData.value = returnData.slice(
+    //   (page.index - 1) * page.size,
+    //   page.index * page.size
+    // );
+  } else if (res.data.code === 401) {
+    router.push("/login");
+  }
 };
-getData();
 
 const changePage = (val: number) => {
   page.index = val;
@@ -343,7 +368,7 @@ const createTask1 = async (name) => {
       ElMessage.success("创建成功");
       inputval.value = "";
       // location.reload()
-      // getData();
+      getData();
     } else if (res.data.code === 403) {
       ElMessage.error("权限不足");
     } else if (res.data.code === 401) {
@@ -402,5 +427,10 @@ const createTask1 = async (name) => {
   .task-middle-content {
     justify-content: flex-start;
   }
+}
+.task-bottom {
+  height: 500px;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 </style>

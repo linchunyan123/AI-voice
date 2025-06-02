@@ -32,7 +32,7 @@
           <div class="fileList">
             <ul>
               <li
-                v-for="(file,index) in uploadFileList"
+                v-for="(file, index) in uploadFileList"
                 :key="file.name"
                 @mouseenter="file.isHover = true"
                 @mouseleave="file.isHover = false"
@@ -42,7 +42,11 @@
                 <el-icon class="icon2" v-if="!file.isHover" color="#67c23a"
                   ><SuccessFilled
                 /></el-icon>
-                <el-icon class="icon3" v-if="file.isHover" color="#f56c6c" @click="deleteFile(index)"
+                <el-icon
+                  class="icon3"
+                  v-if="file.isHover"
+                  color="#f56c6c"
+                  @click="deleteFile(index)"
                   ><CircleClose
                 /></el-icon>
               </li>
@@ -51,7 +55,7 @@
           <div class="fileAction">
             <!-- <el-button class="btn" size="large" type="primary" @click="addFile"><el-icon><CirclePlus /></el-icon>添加文件</el-button> -->
             <div class="uploadBtn">
-              <input type="file" @change="handleFileChange" />
+              <input type="file" multiple @change="handleFileChange" />
               <el-button type="primary" size="large"
                 ><el-icon><CirclePlus /></el-icon>添加文件</el-button
               >
@@ -146,17 +150,17 @@
             <el-table-column type="selection" align="center" width="55" />
 
             <el-table-column label="文件名称" align="center" prop="filename" />
-            <el-table-column label="大小" align="center" prop="filesize" />
+            <el-table-column label="大小" align="center" prop="size" />
             <el-table-column
               label="时长"
               align="center"
-              prop="time"
+              prop="total_voice"
               show-overflow-tooltip
             />
             <el-table-column
               label="有效时长"
               align="center"
-              prop="effectivetime"
+              prop="effective_voice"
             />
             <el-table-column label="语种" align="center" prop="language" />
             <el-table-column label="处理状态" align="center" prop="status" />
@@ -197,11 +201,11 @@
               >选择文件转写</el-button
             >
             <el-pagination
-              :current-page="currentPage"
-              :page-size="pageSize"
-              :page-sizes="[1, 2, 3, 4]"
+              :current-page="page.index"
+              :page-size="page.size"
+              :page-sizes="[5, 10, 15, 20]"
               layout="total, sizes, prev, pager, next, jumper"
-              :total="total"
+              :total="page.total"
               @size-change="changeSize"
               @current-change="changePage"
             />
@@ -240,27 +244,35 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, reactive, nextTick } from "vue";
+import { ref, computed, reactive, nextTick, onMounted } from "vue";
 import type { TabsPaneContext } from "element-plus";
 import { ArrowDown } from "@element-plus/icons-vue";
 import TableSearch from "@/components/operation-search.vue";
 import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
+import { getTaskDetail, uploadTask } from "@/api/task";
+const id = ref("");
 const isHover = ref(false);
 const selectedFile = ref(null);
 const uploadFileList = reactive([]);
+import { useUploadStore } from "@/store/uploadStore";
+
+const uploadStore = useUploadStore();
+
 const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    selectedFile.value = file;
+  const files = event.target.files;
+  if (files && files.length > 0) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      uploadFileList.push({ name: file.name, isHover: false });
+      console.log("上传文件:", file);
+    }
   }
-  console.log(selectedFile.value);
-  uploadFileList.push({name:selectedFile.value.name,isHover:false});
-  // console.log(123,uploadFileList);
-  
+  uploadStore.setFiles(files);
 };
 
 const deleteFile = (index) => {
-   uploadFileList.splice(index, 1)
+  uploadFileList.splice(index, 1);
 };
 
 const router = useRouter();
@@ -313,30 +325,27 @@ const downType = ref("");
 
 // 分页相关
 let returnData = reactive([]);
-const tableData = ref<User[]>([]);
-const currentPage = ref(1);
-const total = ref(2);
-const pageSize = ref(1);
-const changeSize = (size: number) => {
-  pageSize.value = size;
-  getData();
+const tableData = ref([]);
+const changeSize = (val: number) => {
+  page.size = val;
+  // getTaskDetail1();
 };
-const changePage = (page: number) => {
-  currentPage.value = page;
-  getData();
+const changePage = (val: number) => {
+  page.index = val;
+  getTaskDetail1();
 };
-const getData = async () => {
-  const res = await fetchFileData();
-  returnData = res.data.list;
-  tableData.value = returnData.slice(
-    (currentPage.value - 1) * pageSize.value,
-    currentPage.value * pageSize.value
-  );
-  //   page.total = res.data.pageTotal;
-  // page.total = 2;
-  // page.size = 1;
-};
-getData();
+// const getData = async () => {
+//   const res = await fetchFileData();
+//   returnData = res.data.list;
+//   tableData.value = returnData.slice(
+//     (currentPage.value - 1) * pageSize.value,
+//     currentPage.value * pageSize.value
+//   );
+//   //   page.total = res.data.pageTotal;
+//   // page.total = 2;
+//   // page.size = 1;
+// };
+// getData();
 // 进度条相关
 const percentage = ref(90);
 const percentage3 = ref(100);
@@ -428,16 +437,141 @@ const beforeRemove: UploadProps["beforeRemove"] = (uploadFile, uploadFiles) => {
 const detection = () => {
   // console.log("启动检测");
   activeName.value = "second";
+  const uploadStore = useUploadStore();
+  console.log("接收到的文件：", uploadStore.files);
 };
 const transcription = () => {
   // console.log("启动转写");
   activeName.value = "third";
+  const uploadStore = useUploadStore();
+  console.log("接收到的文件：", uploadStore.files);
 };
 // 去文件查看页面
 const toFile = (index) => {
   // console.log(123,index);
   router.push({ path: "file-view", query: { index } });
 };
+// 获取文件详情
+const page = reactive({
+  index: 1,
+  size: 5,
+  total: 0,
+});
+const getTaskDetail1 = async () => {
+  // const res = await getTaskDetail(id.value, page.index, page.size);
+  // console.log(12345, res);
+  const tableData1 = [
+    {
+      filename: "111",
+      size: "10kb",
+      total_voice: "10min",
+      effective_voice: "5min",
+      language: "english",
+      status: "0",
+    },
+    {
+      filename: "222",
+      size: "11kb",
+      total_voice: "15min",
+      effective_voice: "7min",
+      language: "chinese",
+      status: "1",
+    },
+    {
+      filename: "333",
+      size: "13kb",
+      total_voice: "18min",
+      effective_voice: "8min",
+      language: "english",
+      status: "3",
+    },
+    {
+      filename: "334",
+      size: "13kb",
+      total_voice: "18min",
+      effective_voice: "8min",
+      language: "english",
+      status: "3",
+    },
+    {
+      filename: "335",
+      size: "13kb",
+      total_voice: "18min",
+      effective_voice: "8min",
+      language: "english",
+      status: "3",
+    },
+    {
+      filename: "336",
+      size: "13kb",
+      total_voice: "18min",
+      effective_voice: "8min",
+      language: "english",
+      status: "3",
+    },
+    {
+      filename: "337",
+      size: "13kb",
+      total_voice: "18min",
+      effective_voice: "8min",
+      language: "english",
+      status: "3",
+    },
+  ];
+  tableData.value = tableData1.slice(page.index - 1, page.index * page.size);
+  page.total = tableData1.length;
+  // if (res.data.code === 200) {
+  //   console.log(119, res);
+  //   page.total = res.data.data.total;
+  //   console.log(139, page.total);
+
+  //   returnData = res.data.data.details;
+  //   // const username = localStorage.getItem("vuems_name");
+  //   // const updatedData = returnData.map((item) => ({
+  //   //   ...item,
+  //   //   man: username,
+  //   // }));
+  //   const statusMap: { [key: number]: string } = {
+  //     1: "空任务",
+  //     2: "已检测",
+  //     3: "已转写",
+  //     4: "处理中",
+  //     5: "暂停中",
+  //   };
+
+  //   const updatedTwoData = returnData.map((item) => ({
+  //     ...item,
+  //     // man: 999,
+  //     status: statusMap[item.status] || item.status, // 如果status不在映射中，保留原值
+  //   }));
+
+  //   // tableData.value = updatedTwoData;
+
+  //   // tableData.value = returnData.slice(
+  //   //   (page.index - 1) * page.size,
+  //   //   page.index * page.size
+  //   // );
+  // } else if (res.data.code === 401) {
+  //   router.push("/login");
+  // }
+};
+const route = useRoute();
+onMounted(() => {
+  const index = route.query.index;
+  id.value = route.query.id as string;
+  console.log("查询参数 index:", index);
+  console.log("查询参数 id:", id.value);
+  if (index == "1") {
+    activeName.value = "first";
+  } else if (index == "2") {
+    activeName.value = "second";
+  } else if (index == "3") {
+    activeName.value = "third";
+  } else if (index == "4") {
+    activeName.value = "fourth";
+    getTaskDetail1();
+  }
+});
 </script>
 
 <style scoped lang="scss">
@@ -565,6 +699,10 @@ const toFile = (index) => {
   .item {
     margin: 20px 0;
   }
+}
+.fileBox4 {
+  height: 600px;
+  overflow-y: auto;
 }
 ::v-deep(.el-upload-list) {
   //  background-color: red;

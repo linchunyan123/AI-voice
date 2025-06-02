@@ -1,9 +1,7 @@
 export interface Task {
-    id: number;
+    number: number;
     name: string;
-    password: string;
-    email: string;
-    phone: string;
-    role: string;
-    date: string;
+    status: string;
+    create_time: string;
+    man: string
 }
