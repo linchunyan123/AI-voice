@@ -37,8 +37,20 @@ export const menuData: Menus[] = [
   {
     id: '2',
     title: '实时处理任务',
-    index: '/system-role',
+    index: '/theme',
     icon: 'PieChart',
+  },
+  {
+    id: '3',
+    title: '管理用户',
+    index: '/manage-users',
+    icon: 'UserFilled',
+  },
+  {
+    id: '4',
+    title: '管理任务',
+    index: '/manage-tasks',
+    icon: 'ChatLineSquare',
   },
   //   {
   //     id: '3',

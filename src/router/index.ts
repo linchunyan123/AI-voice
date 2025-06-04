@@ -60,22 +60,22 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* 创建用户页面" */ '../views/userCreate.vue'),
             },
             {
-                path: '/system-role',
-                name: 'system-role',
+                path: '/manage-users',
+                name: 'manage-users',
                 meta: {
-                    title: '角色管理',
+                    title: '管理用户',
                     permiss: '12',
                 },
-                component: () => import(/* webpackChunkName: "system-role" */ '../views/system/role.vue'),
+                component: () => import(/* 管理用户页面 */ '../views/system/manage-users.vue'),
             },
             {
-                path: '/system-menu',
-                name: 'system-menu',
+                path: '/manage-tasks',
+                name: 'manage-tasks',
                 meta: {
-                    title: '菜单管理',
-                    permiss: '13',
+                    title: '管理任务',
+                    permiss: '12',
                 },
-                component: () => import(/* webpackChunkName: "system-menu" */ '../views/system/menu.vue'),
+                component: () => import(/* 管理任务 */ '../views/system/manage-tasks.vue'),
             },
             {
                 path: '/table',
