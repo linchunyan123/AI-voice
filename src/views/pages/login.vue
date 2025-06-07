@@ -94,8 +94,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   const res = await loginFn(param.username,param.password);
      if (res.data.code === 200) {
       console.log("用户信息：", res);
-      localStorage.setItem("token", res.data.data.access_token);
-      localStorage.setItem("role", res.data.userinfo.role);
+      localStorage.setItem("token", res.data.data.token.access_token);
+      localStorage.setItem("role", res.data.data.userinfo.role);
       ElMessage.success("登录成功");
       localStorage.setItem("vuems_name", param.username);
       const keys =

@@ -358,6 +358,48 @@ const handleDelete = (row: User) => {
 };
 onMounted(() => {
   getData();
+  //  tableData.value = [
+  //       {
+  //           "number": 1,
+  //           "name": "任务1",
+  //           "money": 123,
+  //           "status": 0,
+  //           "address": "广东省东莞市长安镇",
+  //           "create_time": "2025-6-1",
+  //           "thumb": "https://lin-xin.gitee.io/images/post/wms.png",
+  //           "man": "张三",
+  //       },
+  //       {
+  //           "number": 2,
+  //           "name": "任务2",
+  //           "money": 456,
+  //           "address": "广东省广州市白云区",
+  //           "status": 1,
+  //           "create_time": "22025-6-2",
+  //           "thumb": "https://lin-xin.gitee.io/images/post/node3.png",
+  //           "man": "张三",
+  //       },
+  //       {
+  //           "number": 3,
+  //           "name": "任务3",
+  //           "status": 2,
+  //           "money": 789,
+  //           "address": "湖南省长沙市",
+  //           "create_time": "2025-6-3",
+  //           "thumb": "https://lin-xin.gitee.io/images/post/parcel.png",
+  //           "man": "张三",
+  //       },
+  //       {
+  //           "number": 4,
+  //           "name": "任务4",
+  //           "status": 3,
+  //           "money": 1011,
+  //           "address": "福建省厦门市鼓浪屿",
+  //           "create_time": "2025-6-4",
+  //           "thumb": "https://lin-xin.gitee.io/images/post/notice.png",
+  //           "man": "张三",
+  //       }
+  //   ]
 });
 // 创建任务
 const createTask1 = async (name) => {

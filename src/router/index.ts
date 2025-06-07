@@ -55,7 +55,8 @@ const routes: RouteRecordRaw[] = [
                 name: 'user-create',
                 meta: {
                     title: '创建用户',
-                    permiss: '7',
+                    // permiss: '7',
+                    permiss: '12',
                 },
                 component: () => import(/* 创建用户页面" */ '../views/userCreate.vue'),
             },
@@ -303,7 +304,8 @@ router.beforeEach((to, from, next) => {
     const permiss = usePermissStore();
 
     if (!role && to.meta.noAuth !== true) {
-        next('/login');
+        // next('/login');
+           next();
     } else if (typeof to.meta.permiss == 'string' && !permiss.key.includes(to.meta.permiss)) {
         // 如果没有权限，则进入403
         next('/403');

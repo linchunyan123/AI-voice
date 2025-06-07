@@ -1416,6 +1416,11 @@ vue-tsc@^0.38.4:
     "@vue/server-renderer" "3.4.21"
     "@vue/shared" "3.4.21"
 
+wavesurfer.js@^7.9.5:
+  version "7.9.5"
+  resolved "https://registry.npmjs.org/wavesurfer.js/-/wavesurfer.js-7.9.5.tgz"
+  integrity sha512-ioOG9chuAn0bF2NYYKkZtaxjcQK/hFskLg8ViLYbJHhWPk1N5wWtuqVhqeh2ZWT2SK3t0E8UkD7lLDLuZQQaSA==
+
 webpack-sources@^3.2.3:
   version "3.2.3"
   resolved "https://registry.npmjs.org/webpack-sources/-/webpack-sources-3.2.3.tgz"

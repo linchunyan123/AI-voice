@@ -1,17 +1,8 @@
 <template>
   <div class="operationBox">
-    <el-tabs
-      v-model="activeName"
-      type="card"
-      class="demo-tabs"
-      @tab-click="handleClick"
-    >
+    <el-tabs v-model="activeName" type="card" class="demo-tabs" @tab-click="handleClick">
       <el-tab-pane label="任务操作" name="first">
-        <el-tabs
-          v-model="activeName1"
-          class="demo-tabs1"
-          @tab-click="handleClick1"
-        >
+        <el-tabs v-model="activeName1" class="demo-tabs1" @tab-click="handleClick1">
           <el-tab-pane label="任务名称" name="first1">
             <ul class="taskInfoUl">
               <li>总文件 0个</li>
@@ -31,24 +22,18 @@
         <div class="fileBox">
           <div class="fileList">
             <ul>
-              <li
-                v-for="(file, index) in uploadFileList"
-                :key="file.name"
-                @mouseenter="file.isHover = true"
-                @mouseleave="file.isHover = false"
-              >
-                <el-icon class="icon1" color="#909399"><Document /></el-icon>
+              <li v-for="(file, index) in uploadFileList" :key="file.name" @mouseenter="file.isHover = true"
+                @mouseleave="file.isHover = false">
+                <el-icon class="icon1" color="#909399">
+                  <Document />
+                </el-icon>
                 <div>{{ file.name }}</div>
-                <el-icon class="icon2" v-if="!file.isHover" color="#67c23a"
-                  ><SuccessFilled
-                /></el-icon>
-                <el-icon
-                  class="icon3"
-                  v-if="file.isHover"
-                  color="#f56c6c"
-                  @click="deleteFile(index)"
-                  ><CircleClose
-                /></el-icon>
+                <el-icon class="icon2" v-if="!file.isHover" color="#67c23a">
+                  <SuccessFilled />
+                </el-icon>
+                <el-icon class="icon3" v-if="file.isHover" color="#f56c6c" @click="deleteFile(index)">
+                  <CircleClose />
+                </el-icon>
               </li>
             </ul>
           </div>
@@ -56,33 +41,21 @@
             <!-- <el-button class="btn" size="large" type="primary" @click="addFile"><el-icon><CirclePlus /></el-icon>添加文件</el-button> -->
             <div class="uploadBtn">
               <input type="file" multiple @change="handleFileChange" />
-              <el-button type="primary" size="large"
-                ><el-icon><CirclePlus /></el-icon>添加文件</el-button
-              >
+              <el-button type="primary" size="large"><el-icon>
+                  <CirclePlus />
+                </el-icon>添加文件</el-button>
             </div>
-            <el-button
-              class="btn"
-              size="large"
-              type="primary"
-              @click="detection"
-              ><el-icon><Loading /></el-icon>启动检测</el-button
-            >
-            <el-button
-              class="btn"
-              size="large"
-              type="primary"
-              @click="transcription"
-              ><el-icon><EditPen /></el-icon>启动转写</el-button
-            >
+            <el-button class="btn" size="large" type="primary" @click="detection"><el-icon>
+                <Loading />
+              </el-icon>启动检测</el-button>
+            <el-button class="btn" size="large" type="primary" @click="transcription"><el-icon>
+                <EditPen />
+              </el-icon>启动转写</el-button>
           </div>
         </div>
       </el-tab-pane>
       <el-tab-pane label="文件检测" name="second">
-        <el-tabs
-          v-model="activeName2"
-          class="demo-tabs2"
-          @tab-click="handleClick2"
-        >
+        <el-tabs v-model="activeName2" class="demo-tabs2" @tab-click="handleClick2">
           <el-tab-pane label="任务名称" name="first2">
             <ul class="taskInfoUl">
               <li>正在进行批量文件检测</li>
@@ -102,11 +75,7 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="文件转写" name="third">
-        <el-tabs
-          v-model="activeName3"
-          class="demo-tabs3"
-          @tab-click="handleClick3"
-        >
+        <el-tabs v-model="activeName3" class="demo-tabs3" @tab-click="handleClick3">
           <el-tab-pane label="任务名称" name="first3">
             <ul class="taskInfoUl">
               <li>正在进行批量文件转写</li>
@@ -126,11 +95,7 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="任务详情" name="fourth">
-        <el-tabs
-          v-model="activeName4"
-          class="demo-tabs4"
-          @tab-click="handleClick4"
-        >
+        <el-tabs v-model="activeName4" class="demo-tabs4" @tab-click="handleClick4">
           <el-tab-pane label="任务名称" name="first4">
             <ul class="taskInfoUl">
               <li>总文件数 6个</li>
@@ -141,42 +106,27 @@
           </el-tab-pane>
         </el-tabs>
         <div class="fileBox4">
-          <TableSearch
-            :query="query"
-            :options="searchOpt"
-            :search="handleSearch"
-          />
+          <TableSearch :query="query" :options="searchOpt" :search="handleSearch" />
           <el-table :data="tableData" border style="width: 100%">
             <el-table-column type="selection" align="center" width="55" />
 
             <el-table-column label="文件名称" align="center" prop="filename" />
             <el-table-column label="大小" align="center" prop="size" />
-            <el-table-column
-              label="时长"
-              align="center"
-              prop="total_voice"
-              show-overflow-tooltip
-            />
-            <el-table-column
-              label="有效时长"
-              align="center"
-              prop="effective_voice"
-            />
+            <el-table-column label="时长" align="center" prop="total_voice" show-overflow-tooltip />
+            <el-table-column label="有效时长" align="center" prop="effective_voice" />
             <el-table-column label="语种" align="center" prop="language" />
             <el-table-column label="处理状态" align="center" prop="status" />
 
             <el-table-column label="操作" align="center" width="500">
               <!-- 你可以在这里放操作按钮 -->
               <template #default="scope">
-                <el-button type="success" @click="dialogVisible = true"
-                  ><el-icon><View /></el-icon>转写预览</el-button
-                >
+                <el-button type="success" @click="dialogVisible = true"><el-icon>
+                    <View />
+                  </el-icon>转写预览</el-button>
                 <el-dropdown style="margin: 0 10px">
-                  <el-button color="#626aef"
-                    ><el-icon><Download /></el-icon> 转写下载<el-icon
-                      class="el-icon--right"
-                      ><arrow-down
-                    /></el-icon>
+                  <el-button color="#626aef"><el-icon>
+                      <Download />
+                    </el-icon> 转写下载<el-icon class="el-icon--right"><arrow-down /></el-icon>
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
@@ -187,37 +137,24 @@
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <el-button type="primary" @click="toFile(1)"
-                  ><el-icon><Search /></el-icon>文件查看</el-button
-                >
-                <el-button type="warning" @click="toFile(2)"
-                  ><el-icon><MuteNotification /></el-icon>文件降噪</el-button
-                >
+                <el-button type="primary" @click="toFile(1)"><el-icon>
+                    <Search />
+                  </el-icon>文件查看</el-button>
+                <el-button type="warning" @click="toFile(2)"><el-icon>
+                    <MuteNotification />
+                  </el-icon>文件降噪</el-button>
               </template>
             </el-table-column>
           </el-table>
           <div class="operationBottom">
-            <el-button type="primary" class="btn" @click="transcription"
-              >选择文件转写</el-button
-            >
-            <el-pagination
-              :current-page="page.index"
-              :page-size="page.size"
-              :page-sizes="[5, 10, 15, 20]"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="page.total"
-              @size-change="changeSize"
-              @current-change="changePage"
-            />
+            <el-button type="primary" class="btn" @click="transcription">选择文件转写</el-button>
+            <el-pagination :current-page="page.index" :page-size="page.size" :page-sizes="[5, 10, 15, 20]"
+              layout="total, sizes, prev, pager, next, jumper" :total="page.total" @size-change="changeSize"
+              @current-change="changePage" />
           </div>
         </div>
-        <el-dialog
-          v-model="dialogVisible"
-          title="转写预览"
-          width="600"
-          :style="{ height: '500px' }"
-          :before-close="handleClose"
-        >
+        <el-dialog v-model="dialogVisible" title="转写预览" width="600" :style="{ height: '500px' }"
+          :before-close="handleClose">
           <span>转写的文本预览...</span>
           <template #footer>
             <div class="dialog-footer">
@@ -230,14 +167,8 @@
         </el-dialog>
       </el-tab-pane>
     </el-tabs>
-    <el-button
-      v-for="button in buttons"
-      :key="button.text"
-      :type="button.type"
-      class="returnBtn"
-      text
-      @click="() => $router.push({ name: 'task-management' })"
-    >
+    <el-button v-for="button in buttons" :key="button.text" :type="button.type" class="returnBtn" text
+      @click="() => $router.push({ name: 'task-management' })">
       {{ button.text }}
     </el-button>
   </div>
@@ -325,7 +256,12 @@ const downType = ref("");
 
 // 分页相关
 let returnData = reactive([]);
-const tableData = ref([]);
+const tableData = ref([{ filename: "111", size: "10kb", total_voice: "10min", effective_voice: "5min", language: "english", status: "0" },
+{ filename: "222", size: "20kb", total_voice: "20min", effective_voice: "5min", language: "english", status: "1" },
+{ filename: "333", size: "30kb", total_voice: "30min", effective_voice: "15min", language: "chinese", status: "0" },
+{ filename: "444", size: "40kb", total_voice: "40min", effective_voice: "25min", language: "english", status: "3" },
+{ filename: "555", size: "50kb", total_voice: "50min", effective_voice: "35min", language: "chinese", status: "2" }
+]);
 const changeSize = (val: number) => {
   page.size = val;
   // getTaskDetail1();
@@ -420,8 +356,7 @@ const handlePreview: UploadProps["onPreview"] = (uploadFile) => {
 
 const handleExceed: UploadProps["onExceed"] = (files, uploadFiles) => {
   ElMessage.warning(
-    `The limit is 3, you selected ${files.length} files this time, add up to ${
-      files.length + uploadFiles.length
+    `The limit is 3, you selected ${files.length} files this time, add up to ${files.length + uploadFiles.length
     } totally`
   );
 };
@@ -580,6 +515,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
 }
+
 .demo-tabs1,
 .demo-tabs2,
 .demo-tabs3,
@@ -597,37 +533,45 @@ onMounted(() => {
   border-radius: 10px;
   box-sizing: border-box;
 }
-.demo-tabs1 > .el-tabs__content {
+
+.demo-tabs1>.el-tabs__content {
   color: #6b778c;
   font-size: 32px;
   font-weight: 600;
 }
+
 .demo-tabs {
   box-sizing: border-box;
 }
-.demo-tabs > .el-tabs__content {
+
+.demo-tabs>.el-tabs__content {
   padding: 20px;
   color: #6b778c;
   font-size: 32px;
   font-weight: 600;
 }
+
 .el-tabs {
   background-color: #fff;
   height: 100%;
 }
+
 ::v-deep(.el-tabs__item.is-active) {
   border-bottom-color: #e4e7ed !important;
 }
+
 .returnBtn {
   position: absolute;
   right: 10px;
   top: 5px;
 }
+
 .taskInfoUl {
   list-style: none;
   display: flex;
   justify-content: space-between;
 }
+
 .fileBox,
 .fileBox2,
 .fileBox3,
@@ -641,17 +585,20 @@ onMounted(() => {
   padding: 20px;
   margin: 0 auto;
   margin-top: 20px;
+
   .fileList {
     width: 60%;
     height: 90%;
     // background-color: aqua;
     border-radius: 10px;
     border: 1px solid #dcdfe6;
+
     ul {
       list-style: none;
       width: 96%;
       margin: 0 auto;
       margin-top: 10px;
+
       li {
         margin: 10px 0;
         display: flex;
@@ -659,9 +606,11 @@ onMounted(() => {
         position: relative;
         color: #909399;
         cursor: pointer;
+
         .icon1 {
           margin-right: 5px;
         }
+
         .icon2,
         .icon3 {
           position: absolute;
@@ -670,15 +619,19 @@ onMounted(() => {
       }
     }
   }
+
   .fileAction {
     margin-left: 100px;
+
     .btn {
       display: block;
       margin: 20px auto;
     }
+
     .uploadBtn {
       position: relative;
       cursor: pointer;
+
       input {
         position: absolute;
         left: 0;
@@ -692,18 +645,22 @@ onMounted(() => {
     }
   }
 }
+
 .fileBox2,
 .fileBox3,
 .fileBox4 {
   display: block;
+
   .item {
     margin: 20px 0;
   }
 }
+
 .fileBox4 {
   height: 600px;
   overflow-y: auto;
 }
+
 ::v-deep(.el-upload-list) {
   //  background-color: red;
   position: fixed;
@@ -711,20 +668,25 @@ onMounted(() => {
   top: 35%;
   width: 49%;
 }
+
 .el-upload-list__item {
   margin: 10px 0;
 }
+
 .demo-progress .el-progress--line {
   margin-bottom: 15px;
   max-width: 600px;
 }
+
 .operationBottom {
   margin-top: 20px;
   display: flex;
+
   .btn {
     margin-right: 10px;
   }
 }
+
 .dialog-footer {
   position: absolute;
   bottom: 10px;

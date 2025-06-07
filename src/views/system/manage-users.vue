@@ -36,9 +36,8 @@
 </template>
 
 <script setup lang="ts" name="system-role">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Role } from '@/types/role';
 import { fetchRoleData } from '@/api';
 import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
@@ -59,25 +58,104 @@ const handleSearch = () => {
 
 // 表格相关
 let columns = ref([
-    { type: 'index', label: '序号', width: 55, align: 'center' },
-    { prop: 'name', label: '用户名称' },
-    { prop: 'key', label: '角色标识' },
-    { prop: 'status', label: '状态' },
-    { prop: 'permissions', label: '权限管理' },
-    { prop: 'operator', label: '操作', width: 250 },
+    { prop: 'id', label: '序号', width: 55, align: 'center' },
+    { prop: 'username', label: '用户名称' },
+    { prop: 'password', label: '密码' },
+    { prop: 'nickname', label: '昵称' },
+    { prop: 'role', label: '角色' },
+    { prop: 'status', label: '状态'},
+    { prop: 'update_time', label: '更新时间'},
+    { prop: 'create_time', label: '创建时间'},
+    { prop: "operator", label: "操作" },
 ])
+
+// 定义用户类型
+interface User {
+    id: number;
+    username: string;
+    password: string;
+    nickname: string;
+    role: string;
+    status: boolean;
+    update_time: string;
+    create_time: string;
+}
+
+// 添加假数据
+const mockData = [
+    {
+        id: 1,
+        username: 'admin',
+        password: '******',
+        nickname: '管理员',
+        role: '超级管理员',
+        status: true,
+        update_time: '2024-03-20 10:00:00',
+        create_time: '2024-03-20 10:00:00'
+    },
+    {
+        id: 2,
+        username: 'user1',
+        password: '******',
+        nickname: '张三',
+        role: '普通用户',
+        status: true,
+        update_time: '2024-03-20 11:00:00',
+        create_time: '2024-03-20 11:00:00'
+    },
+    {
+        id: 3,
+        username: 'user2',
+        password: '******',
+        nickname: '李四',
+        role: '普通用户',
+        status: false,
+        update_time: '2024-03-20 12:00:00',
+        create_time: '2024-03-20 12:00:00'
+    },
+    {
+        id: 4,
+        username: 'editor',
+        password: '******',
+        nickname: '王五',
+        role: '编辑',
+        status: true,
+        update_time: '2024-03-20 13:00:00',
+        create_time: '2024-03-20 13:00:00'
+    },
+    {
+        id: 5,
+        username: 'viewer',
+        password: '******',
+        nickname: '赵六',
+        role: '访客',
+        status: true,
+        update_time: '2024-03-20 14:00:00',
+        create_time: '2024-03-20 14:00:00'
+    }
+];
+
 const page = reactive({
     index: 1,
     size: 10,
     total: 0,
 })
-const tableData = ref<Role[]>([]);
+const tableData = ref<User[]>([]);
+
+// 修改获取数据的方法
 const getData = async () => {
-    const res = await fetchRoleData()
-    tableData.value = res.data.list;
-    page.total = res.data.pageTotal;
+    // 模拟异步加载
+    setTimeout(() => {
+        tableData.value = mockData;
+        page.total = mockData.length;
+    }, 500);
 };
-getData();
+
+// 添加onMounted钩子
+onMounted(() => {
+    getData();
+});
+
 const changePage = (val: number) => {
     page.index = val;
     getData();
@@ -96,7 +174,7 @@ const options = ref<FormOption>({
 const visible = ref(false);
 const isEdit = ref(false);
 const rowData = ref({});
-const handleEdit = (row: Role) => {
+const handleEdit = (row: User) => {
     rowData.value = { ...row };
     isEdit.value = true;
     visible.value = true;
@@ -118,7 +196,7 @@ const viewData = ref({
     list: [],
     column: 1
 });
-const handleView = (row: Role) => {
+const handleView = (row: User) => {
     viewData.value.row = { ...row }
     viewData.value.list = [
         {
@@ -142,7 +220,7 @@ const handleView = (row: Role) => {
 };
 
 // 删除相关
-const handleDelete = (row: Role) => {
+const handleDelete = (row: User) => {
     ElMessage.success('删除成功');
 }
 
@@ -150,11 +228,11 @@ const handleDelete = (row: Role) => {
 // 权限管理弹窗相关
 const visible2 = ref(false);
 const permissOptions = ref({})
-const handlePermission = (row: Role) => {
+const handlePermission = (row: User) => {
     visible2.value = true;
     permissOptions.value = {
         id: row.id,
-        permiss: row.permiss
+        role: row.role
     };
 }
 </script>

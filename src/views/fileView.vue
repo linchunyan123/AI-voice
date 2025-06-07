@@ -31,12 +31,15 @@
               <div class="videoBox">
                 <video
                   ref="videoRef"
-                  src="../../public/vedio/2021届清华美院动画毕设 _《万华镜》——百年党庆，献礼中华五十六个民族.mp4"
+                  :src= "videoUrl"
                 >
                   您的浏览器不支持 video 标签。
                 </video>
               </div>
-              <div class="audioTrack">音轨播放区</div>
+              <div class="audioTrack">
+                音轨播放区
+                 <!-- <AudioWave :audioUrl="audioUrl" :bindVideo="videoRef" /> -->
+              </div>
               <div class="audioAction">
                 <el-button type="success" plain @click="playVideo"
                   >▶ 播放</el-button
@@ -219,7 +222,7 @@ import type { TabsPaneContext } from "element-plus";
 import { ArrowDown } from "@element-plus/icons-vue";
 import TableSearch from "@/components/operation-search.vue";
 import { useRoute } from "vue-router";
-
+const videoUrl = '../../public/vedio/2021届清华美院动画毕设 _《万华镜》——百年党庆，献礼中华五十六个民族.mp4'
 const videoRef = ref(null);
 const videoRef1 = ref(null);
 const currentVolume = ref(1); // 音量范围是 0~1
