@@ -69,7 +69,7 @@
                   type="warning"
                   size="small"
                   :icon="Pointer"
-                  @click="router.push({ path: 'task-operation' ,query: { index:1 } })"
+                  @click="router.push({ path: 'task-operation' ,query: { index:1,id: row.id } })"
                 >
                   任务操作
                 </el-button>
@@ -115,9 +115,9 @@
 
 <script setup lang="ts">
 import { toRefs, PropType, ref } from "vue";
-import { useRouter } from "vue-router";
 import { Delete, Edit, View, Refresh, Pointer } from "@element-plus/icons-vue";
 import { ElMessageBox } from "element-plus";
+import { useRouter } from "vue-router";
 const router = useRouter();
 
 let props = defineProps({

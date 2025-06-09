@@ -137,10 +137,10 @@
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <el-button type="primary" @click="toFile(1)"><el-icon>
+                <el-button type="primary" @click="toFile(1,id)"><el-icon>
                     <Search />
                   </el-icon>文件查看</el-button>
-                <el-button type="warning" @click="toFile(2)"><el-icon>
+                <el-button type="warning" @click="toFile(2,id)"><el-icon>
                     <MuteNotification />
                   </el-icon>文件降噪</el-button>
               </template>
@@ -175,38 +175,116 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, reactive, nextTick, onMounted } from "vue";
+import { ref, computed, reactive, nextTick, onMounted, watch, onActivated } from "vue";
 import type { TabsPaneContext } from "element-plus";
 import { ArrowDown } from "@element-plus/icons-vue";
 import TableSearch from "@/components/operation-search.vue";
-import { useRouter } from "vue-router";
-import { useRoute } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { getTaskDetail, uploadTask } from "@/api/task";
 const id = ref("");
 const isHover = ref(false);
 const selectedFile = ref(null);
 const uploadFileList = reactive([]);
+const selectedFiles = reactive(new Map()); // 用于存储选择的文件
 import { useUploadStore } from "@/store/uploadStore";
 
 const uploadStore = useUploadStore();
 
-const handleFileChange = (event) => {
+// 检查文件是否已存在
+const isFileExists = (fileName) => {
+  return uploadFileList.some(file => file.name === fileName);
+};
+
+const handleFileChange = async (event) => {
   const files = event.target.files;
   if (files && files.length > 0) {
+    // 将文件添加到列表中
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      uploadFileList.push({ name: file.name, isHover: false });
-      console.log("上传文件:", file);
+      
+      // 检查文件是否已存在
+      if (isFileExists(file.name)) {
+        ElMessage.warning(`文件 "${file.name}" 已存在`);
+        continue;
+      }
+      
+      const fileId = Date.now() + i; // 生成唯一ID
+      uploadFileList.push({ 
+        id: fileId,
+        name: file.name, 
+        isHover: false,
+        file: file // 保存文件对象
+      });
+      selectedFiles.set(fileId, file);
     }
+  } else {
+    ElMessage.warning("请选择要上传的文件");
   }
-  uploadStore.setFiles(files);
+  // 清空input的值，这样同一个文件可以重复上传
+  event.target.value = "";
 };
 
 const deleteFile = (index) => {
+  const fileId = uploadFileList[index].id;
+  selectedFiles.delete(fileId); // 从Map中删除文件
   uploadFileList.splice(index, 1);
 };
 
+const uploadFiles = async () => {
+  if (selectedFiles.size === 0) {
+    ElMessage.warning("请先选择文件");
+    return;
+  }
+
+  try {
+    // 构建文件对象
+    const fileObjects = {};
+    let index = 1;
+    for (const [_, file] of selectedFiles) {
+      fileObjects[`file${index}`] = file;
+      index++;
+    }
+    
+    // 调用上传API
+    const res = await uploadTask(Number(id.value), fileObjects);
+    console.log(187,res);
+    
+    if (res.data.code === 200) {
+      ElMessage.success("文件上传成功");
+      // 清空已上传的文件列表
+      uploadFileList.length = 0;
+      selectedFiles.clear();
+    } else if (res.data.code === 401) {
+      router.push("/login");
+    } else {
+      ElMessage.error(res.data.msg || "文件上传失败");
+    }
+  } catch (error) {
+    console.error("文件上传失败:", error);
+    ElMessage.error("文件上传失败，请稍后重试");
+  }
+};
+
+const detection = async () => {
+  if (selectedFiles.size === 0) {
+    ElMessage.warning("请先选择文件");
+    return;
+  }
+  await uploadFiles();
+  activeName.value = "second";
+};
+
+const transcription = async () => {
+  if (selectedFiles.size === 0) {
+    ElMessage.warning("请先选择文件");
+    return;
+  }
+  await uploadFiles();
+  activeName.value = "third";
+};
+
 const router = useRouter();
+const route = useRoute();
 
 const dialogVisible = ref(false);
 
@@ -226,7 +304,9 @@ const query = reactive({
   status: "",
 });
 const handleSearch = () => {
-  console.log("Searching...");
+  // console.log("Searching...");
+  page.index = 1;
+  getTaskDetail1()
 };
 const searchOpt = ref<FormOptionList[]>([
   {
@@ -256,12 +336,7 @@ const downType = ref("");
 
 // 分页相关
 let returnData = reactive([]);
-const tableData = ref([{ filename: "111", size: "10kb", total_voice: "10min", effective_voice: "5min", language: "english", status: "0" },
-{ filename: "222", size: "20kb", total_voice: "20min", effective_voice: "5min", language: "english", status: "1" },
-{ filename: "333", size: "30kb", total_voice: "30min", effective_voice: "15min", language: "chinese", status: "0" },
-{ filename: "444", size: "40kb", total_voice: "40min", effective_voice: "25min", language: "english", status: "3" },
-{ filename: "555", size: "50kb", total_voice: "50min", effective_voice: "35min", language: "chinese", status: "2" }
-]);
+const tableData = ref([]);
 const changeSize = (val: number) => {
   page.size = val;
   // getTaskDetail1();
@@ -270,18 +345,6 @@ const changePage = (val: number) => {
   page.index = val;
   getTaskDetail1();
 };
-// const getData = async () => {
-//   const res = await fetchFileData();
-//   returnData = res.data.list;
-//   tableData.value = returnData.slice(
-//     (currentPage.value - 1) * pageSize.value,
-//     currentPage.value * pageSize.value
-//   );
-//   //   page.total = res.data.pageTotal;
-//   // page.total = 2;
-//   // page.size = 1;
-// };
-// getData();
 // 进度条相关
 const percentage = ref(90);
 const percentage3 = ref(100);
@@ -304,7 +367,9 @@ const activeName4 = ref("first4");
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   nextTick(() => {
     (document.activeElement as HTMLElement | null)?.blur?.();
-    // console.log(tab, event);
+    if (tab.props.name === "fourth") {
+      getTaskDetail1();
+    }
   });
 };
 const handleClick1 = (tab: TabsPaneContext, event: Event) => {
@@ -328,63 +393,17 @@ const handleClick3 = (tab: TabsPaneContext, event: Event) => {
 const handleClick4 = (tab: TabsPaneContext, event: Event) => {
   nextTick(() => {
     (document.activeElement as HTMLElement | null)?.blur?.();
+    getTaskDetail1()
     // console.log(tab, event);
   });
 };
 const buttons = [{ type: "primary", text: "⬅ 返回任务管理" }] as const;
 import { ElMessage, ElMessageBox } from "element-plus";
-import type { UploadProps, UploadUserFile } from "element-plus";
 
-const fileList = ref<UploadUserFile[]>([
-  {
-    name: "element-plus-logo.svg",
-    url: "https://element-plus.org/images/element-plus-logo.svg",
-  },
-  {
-    name: "element-plus-logo2.svg",
-    url: "https://element-plus.org/images/element-plus-logo.svg",
-  },
-]);
-
-const handleRemove: UploadProps["onRemove"] = (file, uploadFiles) => {
-  console.log(file, uploadFiles);
-};
-
-const handlePreview: UploadProps["onPreview"] = (uploadFile) => {
-  console.log(uploadFile);
-};
-
-const handleExceed: UploadProps["onExceed"] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `The limit is 3, you selected ${files.length} files this time, add up to ${files.length + uploadFiles.length
-    } totally`
-  );
-};
-
-const beforeRemove: UploadProps["beforeRemove"] = (uploadFile, uploadFiles) => {
-  return ElMessageBox.confirm(
-    `Cancel the transfer of ${uploadFile.name} ?`
-  ).then(
-    () => true,
-    () => false
-  );
-};
-const detection = () => {
-  // console.log("启动检测");
-  activeName.value = "second";
-  const uploadStore = useUploadStore();
-  console.log("接收到的文件：", uploadStore.files);
-};
-const transcription = () => {
-  // console.log("启动转写");
-  activeName.value = "third";
-  const uploadStore = useUploadStore();
-  console.log("接收到的文件：", uploadStore.files);
-};
 // 去文件查看页面
-const toFile = (index) => {
+const toFile = (index,id) => {
   // console.log(123,index);
-  router.push({ path: "file-view", query: { index } });
+  router.push({ path: "file-view", query: { index,id } });
 };
 // 获取文件详情
 const page = reactive({
@@ -393,104 +412,59 @@ const page = reactive({
   total: 0,
 });
 const getTaskDetail1 = async () => {
-  // const res = await getTaskDetail(id.value, page.index, page.size);
-  // console.log(12345, res);
-  const tableData1 = [
-    {
-      filename: "111",
-      size: "10kb",
-      total_voice: "10min",
-      effective_voice: "5min",
-      language: "english",
-      status: "0",
-    },
-    {
-      filename: "222",
-      size: "11kb",
-      total_voice: "15min",
-      effective_voice: "7min",
-      language: "chinese",
-      status: "1",
-    },
-    {
-      filename: "333",
-      size: "13kb",
-      total_voice: "18min",
-      effective_voice: "8min",
-      language: "english",
-      status: "3",
-    },
-    {
-      filename: "334",
-      size: "13kb",
-      total_voice: "18min",
-      effective_voice: "8min",
-      language: "english",
-      status: "3",
-    },
-    {
-      filename: "335",
-      size: "13kb",
-      total_voice: "18min",
-      effective_voice: "8min",
-      language: "english",
-      status: "3",
-    },
-    {
-      filename: "336",
-      size: "13kb",
-      total_voice: "18min",
-      effective_voice: "8min",
-      language: "english",
-      status: "3",
-    },
-    {
-      filename: "337",
-      size: "13kb",
-      total_voice: "18min",
-      effective_voice: "8min",
-      language: "english",
-      status: "3",
-    },
-  ];
-  tableData.value = tableData1.slice(page.index - 1, page.index * page.size);
-  page.total = tableData1.length;
-  // if (res.data.code === 200) {
-  //   console.log(119, res);
-  //   page.total = res.data.data.total;
-  //   console.log(139, page.total);
-
-  //   returnData = res.data.data.details;
-  //   // const username = localStorage.getItem("vuems_name");
-  //   // const updatedData = returnData.map((item) => ({
-  //   //   ...item,
-  //   //   man: username,
-  //   // }));
-  //   const statusMap: { [key: number]: string } = {
-  //     1: "空任务",
-  //     2: "已检测",
-  //     3: "已转写",
-  //     4: "处理中",
-  //     5: "暂停中",
-  //   };
-
-  //   const updatedTwoData = returnData.map((item) => ({
-  //     ...item,
-  //     // man: 999,
-  //     status: statusMap[item.status] || item.status, // 如果status不在映射中，保留原值
-  //   }));
-
-  //   // tableData.value = updatedTwoData;
-
-  //   // tableData.value = returnData.slice(
-  //   //   (page.index - 1) * page.size,
-  //   //   page.index * page.size
-  //   // );
-  // } else if (res.data.code === 401) {
-  //   router.push("/login");
-  // }
+  try {
+    const res = await getTaskDetail(id.value, page.index, page.size, {
+      search: query.fileType !== "全部文件" ? query.fileType : undefined,
+      sort: "update_time",
+      order: "desc"
+    });
+    console.log(12345, res);
+    if (res.data.code === 200) {
+      tableData.value = res.data.data.list;
+      page.total = res.data.data.total;
+    } else if (res.data.code === 401) {
+      router.push("/login");
+    } else {
+      ElMessage.error(res.data.msg || "获取任务详情失败");
+    }
+  } catch (error) {
+    console.error("获取任务详情失败:", error);
+    ElMessage.error("获取任务详情失败，请稍后重试");
+  }
 };
-const route = useRoute();
+
+// 监听路由参数变化
+watch(
+  () => route.query,
+  (newQuery) => {
+    if (newQuery.id) {
+      id.value = newQuery.id as string;
+      if (newQuery.index === "4") {
+        activeName.value = "fourth";
+        getTaskDetail1();
+      }
+    }
+  },
+  { immediate: true }
+);
+
+// 监听标签页变化
+watch(
+  () => activeName.value,
+  (newValue) => {
+    if (newValue === "fourth") {
+      getTaskDetail1();
+    }
+  }
+);
+
+// 组件被激活时重新获取数据
+onActivated(() => {
+  if (activeName.value === "fourth") {
+    getTaskDetail1();
+  }
+});
+
 onMounted(() => {
   const index = route.query.index;
   id.value = route.query.id as string;

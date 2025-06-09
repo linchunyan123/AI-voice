@@ -92,7 +92,7 @@ const submitForm = async (username, password) => {
       param.username = "";
       param.password = "";
     } else {
-      ElMessage.error("创建失败");
+      ElMessage.error(res.data.msg);
     }
   }
 };

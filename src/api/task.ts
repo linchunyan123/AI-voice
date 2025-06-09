@@ -10,13 +10,26 @@ export const createTask = (name) => {
     });
 };
 // 获取任务列表
-export const getTaskList = (page,limit) => {
+export const getTaskList = (page: number, limit: number, options?: {
+    search?: string;
+    status?: string;
+    sort?: string;
+    order?: string;
+    start_time?: string;
+    end_time?: string;
+}) => {
     return request({
         url: '/task/tasklist',
         method: 'post',
         data: {
-            page: page || null,
-            limit: limit || null
+            page,
+            limit,
+            search: options?.search || null,
+            status: options?.status || null,
+            sort: options?.sort || null,
+            order: options?.order || null,
+            start_time: options?.start_time || null,
+            end_time: options?.end_time || null,
         }
     });
 }
@@ -43,30 +56,41 @@ export const updateTask = (id,[name,status]) => {
     });
 }
 // 任务操作上传文件
-export const uploadTask = (task_id,[file1,file2,file3]) => {
+export const uploadTask = (task_id: number, files?: { [key: string]: File }) => {
+    const formData = new FormData();
+    formData.append('task_id', task_id.toString());
+    
+    if (files) {
+        Object.entries(files).forEach(([key, file]) => {
+            formData.append(key, file);
+        });
+    }
+
     return request({
         url: '/task/upload',
         method: 'post',
-        data: {
-            task_id: task_id,
-            file1: file1 || null,
-            file2: file2 || null,
-            file3: file3 || null,
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data'
         }
     });
 }
 // 获取任务详情
-export const getTaskDetail = (task_id,[page,limit,search,sort,order]) => {
+export const getTaskDetail = (task_id: string, page: number, limit: number, options?: {
+    search?: string;
+    sort?: string;
+    order?: string;
+}) => {
     return request({
         url: '/taskinfo/getTaskInfo',
         method: 'post',
         data: {
-            task_id:task_id,
-            page: page || null,
-            limit: limit || null,
-            search: search || null,
-            sort: sort || null,
-            order: order || null
+            task_id,
+            page,
+            limit,
+            search: options?.search || null,
+            sort: options?.sort || null,
+            order: options?.order || null
         }
     });
 }

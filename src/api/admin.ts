@@ -21,19 +21,26 @@ export const DeleteUser = ([uid]) => {
     });
 };
 // 获取用户列表
-export const getUserList = (page, limit,search,role,status,order_field,order_type,fields) => {
+export const getUserList = (page: number, limit: number, options?: {
+    search?: string;
+    role?: string;
+    status?: string;
+    order_field?: string;
+    order_type?: string;
+    fields?: string;
+}) => {
     return request({
         url: '/admin/getUserList',
         method: 'post',
         data: {
-            page: page,
-            limit: limit,
-            search: search,
-            role: role,
-            status: status,
-            order_field: order_field,
-            order_type: order_type,
-            fields: fields,
+            page,
+            limit,
+            search: options?.search || null,
+            role: options?.role || null,
+            status: options?.status || null,
+            order_field: options?.order_field || null,
+            order_type: options?.order_type || null,
+            fields: options?.fields || null,
         }
     });
 };

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会场交通</title>
+    <style>
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            width: 1200px;
+            height: 400px;
+            /* height: 100vh; */
+        }
+
+        #map {
+            flex: 6;
+            height: 100%;
+        }
+
+        .sidebar {
+            flex: 4;
+            background: white;
+            padding: 10px;
+            overflow-y: auto;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #00c853;
+            color: white;
+            padding: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .location-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .location-name {
+            display: flex;
+            align-items: center;
+        }
+
+        .location-icon {
+            margin-right: 5px;
+            font-size: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .btn {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 3px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .location-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .route-title {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .route-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .route-header {
+            font-weight: bold;
+            color: #00c853;
+        }
+
+        .route-details {
+            font-size: 0.9em;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .route-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 5px 0;
+        }
+
+        .step-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        #result {
+            margin-top: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            overflow: hidden;
+            display: none;
+        }
+    </style>
+    <!-- 引入百度地图 API -->
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=3.0&ak=kUlZd7YVGmHIUYUVEVDVVxAwmPnZVtoN"></script>
+    <!-- 引入 Vue 2 通过 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+</head>
+
+<body>
+    <div id="app" class="container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <div class="tabs">
+                <div class="tab">车站</div>
+                <div class="tab">|</div>
+                <div class="tab">机场</div>
+            </div>
+            <div class="location-item">
+                <div class="location-header">
+                    <div class="location-name">
+                        <span class="location-icon">🚉</span>
+                        <span>广州站-出站口</span>
+                    </div>
+                    <div class="action-buttons">
+                        <span class="btn active" @click="toggleRoute('taxi', 0)">打车路线</span>
+                        <span class="btn" @click="toggleRoute('public', 0)">公交路线</span>
+                    </div>
+                </div>
+                <div class="location-info">
+                    用时: 12分钟 (打车费用: 19元)
+                </div>
+            </div>
+            <div class="location-item">
+                <div class="location-header">
+                    <div class="location-name">
+                        <span class="location-icon">✈️</span>
+                        <span>广州白云国际机场</span>
+                    </div>
+                    <div class="action-buttons">
+                        <span class="btn" @click="toggleRoute('taxi', 1)">打车路线</span>
+                        <span class="btn" @click="toggleRoute('public', 1)">公交路线</span>
+                    </div>
+                </div>
+                <div class="location-info">
+                    用时: 32分钟 (打车费用: 86元)
+                </div>
+            </div>
+            <div class="location-item">
+                <div class="location-header">
+                    <div class="location-name">
+                        <span class="location-icon">✈️</span>
+                        <span>佛山沙堤机场</span>
+                    </div>
+                    <div class="action-buttons">
+                        <span class="btn" @click="toggleRoute('taxi', 2)">打车路线</span>
+                        <span class="btn" @click="toggleRoute('public', 2)">公交路线</span>
+                    </div>
+                </div>
+                <div class="location-info">
+                    用时: 46分钟 (打车费用: 94元)
+                </div>
+            </div>
+            <div id='result'></div>
+        </div>
+    </div>
+
+    <script>
+        // Vue 应用
+        new Vue({
+            el: '#app',
+            data: {
+                map: null,
+                transit: null,
+                activeLocation: 0,
+                activeRouteType: 'taxi',
+                routePolicy: [
+                    BMAP_TRANSIT_POLICY_RECOMMEND,
+                    BMAP_TRANSIT_POLICY_LEAST_TIME,
+                    BMAP_TRANSIT_POLICY_LEAST_TRANSFER,
+                    BMAP_TRANSIT_POLICY_LEAST_WALKING,
+                    BMAP_TRANSIT_POLICY_AVOID_SUBWAYS,
+                    BMAP_TRANSIT_POLICY_FIRST_SUBWAYS
+                ],
+                locations: [
+                    {
+                        name: '广州站-出站口',
+                        icon: '🚉',
+                        coordinate: { lng: 113.259036, lat: 23.148255 },
+                        taxiInfo: '用时: 12分钟 (打车费用: 19元)'
+                    },
+                    {
+                        name: '广州白云国际机场',
+                        icon: '✈️',
+                        coordinate: { lng: 113.302130, lat: 23.387010 },
+                        taxiInfo: '用时: 32分钟 (打车费用: 86元)'
+                    },
+                    {
+                        name: '佛山沙堤机场',
+                        icon: '✈️',
+                        coordinate: { lng: 113.075946, lat: 23.081108 },
+                        taxiInfo: '用时: 46分钟 (打车费用: 94元)'
+                    }
+                ],
+                endPoint: { name: '广州万富希尔顿酒店', lng: 113.357106, lat: 23.103650 }
+            },
+            mounted() {
+                this.initMap();
+                // 默认显示广州站到酒店的打车路线
+                this.showTaxiRoute(this.locations[0]);
+            },
+            methods: {
+                initMap() {
+                    this.map = new BMap.Map("map");
+                    this.map.enableScrollWheelZoom(true);
+                    this.map.centerAndZoom(
+                        new BMap.Point(this.endPoint.lng, this.endPoint.lat),
+                        14
+                    );
+                    this.map.addControl(new BMap.MapTypeControl());
+                    const opts = { type: BMAP_NAVIGATION_CONTROL_ZOOM };
+                    this.map.addControl(new BMap.NavigationControl(opts));
+
+                    // 初始化公交路线规划
+                    this.transit = new BMap.TransitRoute(this.map, {
+                        renderOptions: { map: this.map, panel: "result" },
+                    });
+                },
+                showTaxiRoute(location) {
+                    this.activeLocation = this.locations.indexOf(location);
+                    this.activeRouteType = 'taxi';
+
+                    // 清除公交路线结果
+                    document.getElementById('result').style.display = 'none';
+
+                    // 更新地图视图
+                    this.map.clearOverlays();
+
+                    // 添加起点和终点标记（使用百度地图自带的导航控件）
+                    const start = new BMap.Point(location.coordinate.lng, location.coordinate.lat);
+                    const end = new BMap.Point(this.endPoint.lng, this.endPoint.lat);
+
+                    // 设置地图范围以包含起点和终点
+                    const bounds = new BMap.Bounds();
+                    bounds.extend(start);
+                    bounds.extend(end);
+                    this.map.setViewport(bounds);
+
+                    // 显示导航路线（打车路线）
+                    const driving = new BMap.DrivingRoute(this.map, {
+                        renderOptions: { map: this.map }
+                    });
+                    driving.search(start, end);
+                },
+                showPublicRoute(location) {
+                    this.activeLocation = this.locations.indexOf(location);
+                    this.activeRouteType = "public";
+
+                    // 显示公交路线结果
+                    document.getElementById("result").style.display = "block";
+
+                    // 清除地图上的标记
+                    this.map.clearOverlays();
+
+                    // 添加起点和终点标记（使用百度地图自带的导航控件）
+                    const start = new BMap.Point(
+                        location.coordinate.lng,
+                        location.coordinate.lat
+                    );
+                    const end = new BMap.Point(this.endPoint.lng, this.endPoint.lat);
+
+                    // 设置地图范围以包含起点和终点
+                    const bounds = new BMap.Bounds();
+                    bounds.extend(start);
+                    bounds.extend(end);
+                    this.map.setViewport(bounds);
+
+                    // 搜索功能进行公交路线查询
+                    this.transit.setPolicy(this.routePolicy[1]); // 使用最少时间策略
+                    this.transit.search(start, end);
+                },
+                toggleRoute(routeType, index) {
+                    if (routeType === 'taxi') {
+                        this.showTaxiRoute(this.locations[index]);
+                    } else if (routeType === 'public') {
+                        this.showPublicRoute(this.locations[index]);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

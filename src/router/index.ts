@@ -248,6 +248,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "statistic" */ '../views/element/statistic.vue'),
             },
+            {
+                path: '/test',
+                name: 'test',
+                meta: {
+                    title: '测试',
+                    permiss: '7',
+                },
+                component: () => import(/* webpackChunkName: "theme" */ '../views/pages/test.vue'),
+            },
         ],
     },
     {

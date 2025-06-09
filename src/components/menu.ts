@@ -37,7 +37,7 @@ export const menuData: Menus[] = [
   {
     id: '2',
     title: '实时处理任务',
-    index: '/theme',
+    index: '/test',
     icon: 'PieChart',
   },
   {

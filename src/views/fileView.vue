@@ -209,7 +209,7 @@
       :type="button.type"
       class="returnBtn"
       text
-      @click="() => $router.push({ name: 'task-operation' })"
+      @click="router.push({ path: 'task-operation' ,query: { index:4 ,id:id} })"
     >
       {{ button.text }}
     </el-button>
@@ -222,6 +222,9 @@ import type { TabsPaneContext } from "element-plus";
 import { ArrowDown } from "@element-plus/icons-vue";
 import TableSearch from "@/components/operation-search.vue";
 import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
+const router = useRouter();
+const id = ref(0);
 const videoUrl = '../../public/vedio/2021届清华美院动画毕设 _《万华镜》——百年党庆，献礼中华五十六个民族.mp4'
 const videoRef = ref(null);
 const videoRef1 = ref(null);
@@ -292,6 +295,7 @@ watch(videoRef1, (el) => {
 const route = useRoute();
 onMounted(() => {
   const index = route.query.index;
+  id.value = route.query.id;
   // console.log("查询参数 index:", index);
   if (index == "1") {
     activeName.value = "first";

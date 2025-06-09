@@ -68,8 +68,9 @@
                 </el-table-column>
             </template>
         </el-table>
-        <el-pagination v-if="hasPagination" :current-page="currentPage" :page-size="pageSize" :background="true"
-            :layout="layout" :total="total" @current-change="handleCurrentChange" />
+        <el-pagination :current-page="currentPage" :page-size="pageSize" :page-sizes="[5, 10, 15, 20]"
+            layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="changeSize"
+            @current-change="changePage" />
     </div>
 </template>
 
@@ -141,7 +142,11 @@ const props = defineProps({
     changePage: {
         type: Function,
         default: () => { }
-    }
+    },
+    changeSize: {
+    type: Function,
+    default: () => {},
+  },
 })
 
 let {
